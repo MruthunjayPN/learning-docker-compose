@@ -11,15 +11,19 @@
  - npm run start
 
 ## Docker installation
- - if we do using only docker , we have to start 2 services with docker - backend and postgress -- this may increase for  large applications . so we will use docker-compose
-
  - install docker
- - start postgres - (`docker run -e POSTGRES_PASSWORD=secretpassword -d -p 5432:5432 postgres`)
- - build the image for backend - `docker build -t  eg-backend . `
- - start the image - `docker run -p 3000:3000 eg-backend`
+ - create network - (`docker network create app_network`)
+ - start postgres - (`docker run --network app_network --name postgresnewDb -e POSTGRES_PASSWORD=secretpassword -d -p 5432:5432 postgres`)
+ - build the image for backend - `docker build --network=host -t eg-backend . `
+ - start the image - `docker run -e DATABASE_URL="postgresql://postgres:secretpassword@postgresnewDb:5432/postgres" --network app_network -p 3000:3000 eg-backend`
 
- ## Docker compose
- - install docker , docker-compose
- - RUN `docker-compose up `
+## Docker compose (Recommended)
+ - install docker and docker-compose
+ - RUN `docker-compose up`
 
- - number of steps with docker compose remain same (even if num of services increase)
+The Docker Compose setup will:
+1. Start PostgreSQL database
+2. Wait for database to be ready (health check)
+3. Start the backend service
+4. Run migrations automatically
+5. Start the application
